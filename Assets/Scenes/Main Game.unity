@@ -293,7 +293,7 @@ GameObject:
   - component: {fileID: 803659126}
   m_Layer: 0
   m_Name: Ground
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -648,7 +648,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 469718557233890638, guid: aeb7b79372133f84d8bb33498f69e547, type: 3}
-  players: []
   startingPoints:
   - {fileID: 997974397}
   - {fileID: 463837539}

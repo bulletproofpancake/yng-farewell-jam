@@ -4,8 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerManager : MonoBehaviour
 {
     [SerializeField] GameObject playerPrefab;
-    [SerializeField] private List<PlayerInput> players = new List<PlayerInput>();
-    [SerializeField] private List<Transform> startingPoints = new List<Transform>();
+    public List<Transform> startingPoints = new List<Transform>();
     private PlayerInputManager playerInputManager;
 
     void Awake()
@@ -23,16 +22,16 @@ public class PlayerManager : MonoBehaviour
 
     void OnEnable()
     {
-        playerInputManager.onPlayerJoined += AddPlayer;
+        playerInputManager.onPlayerJoined += SpawnPlayer;
     }
+    
     void OnDisable()
     {
-        playerInputManager.onPlayerJoined -= AddPlayer;
+        playerInputManager.onPlayerJoined -= SpawnPlayer;
     }
 
-    public void AddPlayer(PlayerInput player)
+    public void SpawnPlayer(PlayerInput player)
     {
-        players.Add(player);
-        player.transform.position = startingPoints[players.Count - 1].position;
+        player.transform.position = startingPoints[player.playerIndex].position;
     }
 }

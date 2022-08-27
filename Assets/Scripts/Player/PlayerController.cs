@@ -7,16 +7,28 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] float turnSmoothTime = 0.1f;
     float _turnSmoothVelocity;
+    
+    [SerializeField] private float offGroundTime = 3f;
+    [SerializeField] private bool _isGrounded;
+    private float _timeOffGround;
+
+    public static event Action OnPlayerFall;
 
     Rigidbody _rb;
     Vector3 _movement;
 
     Animator _animator;
+    
+    PlayerManager _playerManager;
+    PlayerInput _playerInput;
+
 
     void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _animator = GetComponent<Animator>();
+        _playerManager = FindObjectOfType<PlayerManager>();
+        _playerInput = GetComponent<PlayerInput>();
     }
 
     void Update()
@@ -28,12 +40,36 @@ public class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
         }
 
+        if (!_isGrounded && _timeOffGround < offGroundTime)
+        {
+            _timeOffGround += Time.deltaTime;
+        }
+
+        if (_timeOffGround > offGroundTime)
+        {
+            _timeOffGround = 0;
+            _playerManager.SpawnPlayer(_playerInput);
+            PlayerFell();
+        }
+
         _animator.SetBool("isMoving", _movement != Vector3.zero);
     }
 
     void FixedUpdate()
     {
         _rb.MovePosition(_rb.position + _movement * movementSpeed * Time.fixedDeltaTime);
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.collider.CompareTag("Ground"))
+            _isGrounded = true;
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        if (other.collider.CompareTag("Ground"))
+            _isGrounded = false;
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -45,5 +81,10 @@ public class PlayerController : MonoBehaviour
     public void Push(InputAction.CallbackContext context)
     {
         _animator.SetTrigger("attack");
+    }
+
+    private static void PlayerFell()
+    {
+        OnPlayerFall?.Invoke();
     }
 }

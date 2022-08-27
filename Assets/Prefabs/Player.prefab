@@ -943,6 +943,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 5
   turnSmoothTime: 0.1
+  offGroundTime: 3
 --- !u!114 &3616140299321333847
 MonoBehaviour:
   m_ObjectHideFlags: 0
