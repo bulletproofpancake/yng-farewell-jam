@@ -4,13 +4,20 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Movement")]
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] float turnSmoothTime = 0.1f;
     float _turnSmoothVelocity;
-    
+
+    [Header("Ground Check")]
     [SerializeField] private float offGroundTime = 3f;
     [SerializeField] private bool _isGrounded;
     private float _timeOffGround;
+
+    [Header("Attack")] 
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private float attackRange = 1f;
+    [SerializeField] private float attackForce = 125f;
 
     public static event Action OnPlayerFall;
 
@@ -18,9 +25,10 @@ public class PlayerController : MonoBehaviour
     Vector3 _movement;
 
     Animator _animator;
-    
+
     PlayerManager _playerManager;
     PlayerInput _playerInput;
+    private PlayerControls _playerControls;
 
 
     void Awake()
@@ -29,8 +37,17 @@ public class PlayerController : MonoBehaviour
         _animator = GetComponent<Animator>();
         _playerManager = FindObjectOfType<PlayerManager>();
         _playerInput = GetComponent<PlayerInput>();
+        _playerControls = new PlayerControls();
     }
 
+    private void OnEnable()
+    {
+        _playerControls.Enable();
+    }
+    private void OnDisable()
+    {
+        _playerControls.Disable();
+    }
     void Update()
     {
         if (_movement.sqrMagnitude != 0f)
@@ -80,11 +97,34 @@ public class PlayerController : MonoBehaviour
     }
     public void Push(InputAction.CallbackContext context)
     {
+        if (!context.performed) return;
+        print("Pushing");
         _animator.SetTrigger("attack");
+        var collisions = Physics.OverlapSphere(attackPoint.position, attackRange);
+        foreach (var collision in collisions)
+        {
+            if (collision.CompareTag("Player") && collision.gameObject != this.gameObject)
+            {
+                var direction = collision.transform.position - transform.position;
+                collision.GetComponent<PlayerController>().KnockbackPlayer(direction, attackForce);
+            }
+        }
     }
 
+    public void KnockbackPlayer(Vector3 direction, float force)
+    {
+        direction.y = 0;
+        _rb.AddForce(direction.normalized * force, ForceMode.Impulse);
+    }
+    
     private static void PlayerFell()
     {
         OnPlayerFall?.Invoke();
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }
