@@ -1,0 +1,47 @@
+name: Build Project
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      - name: Build StandaloneWindows64
+        uses: game-ci/unity-builder@v2
+        id: build
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: StandaloneWindows64
+          versioning: Semantic
+
+      - uses: sarisia/actions-status-discord@v1.9.0
+        if: always()
+        with:
+          webhook: ${{secrets.DISCORD_WEBHOOK}}
+          avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+
+      - name: Return License
+        uses: game-ci/unity-return-license@v2
+        if: always()
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: FarewellJam-${{steps.build.outputs.buildVersion}}
+          path: build/StandaloneWindows64
