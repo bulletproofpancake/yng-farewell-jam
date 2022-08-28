@@ -944,7 +944,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 5
   turnSmoothTime: 0.1
-  offGroundTime: 1
+  offGroundTime: 3
   _isGrounded: 0
   attackPoint: {fileID: 1864192200298140915}
   attackRange: 1

@@ -21,6 +21,6 @@ public class MainMenuManager : MonoBehaviour
 
     private void OnGameStart()
     {
-        transform.DOLocalMoveY(1000, 1f);
+        transform.DOLocalMoveY(1000, 1f).OnComplete(() => gameObject.SetActive(false));
     }
 }
