@@ -30,6 +30,8 @@ public class PlayerController : MonoBehaviour
     PlayerManager _playerManager;
     PlayerInput _playerInput;
     private PlayerControls _playerControls;
+    
+    private GameManager _gameManager;
 
 
     void Awake()
@@ -39,6 +41,7 @@ public class PlayerController : MonoBehaviour
         _playerManager = FindObjectOfType<PlayerManager>();
         _playerInput = GetComponent<PlayerInput>();
         _playerControls = new PlayerControls();
+        _gameManager = FindObjectOfType<GameManager>();
     }
 
     private void OnEnable()
@@ -84,6 +87,8 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                _gameManager.downedPlayers.Add(_playerInput.playerIndex);
+                _gameManager.OnGameEnd();
                 gameObject.SetActive(false);
             }
         }
