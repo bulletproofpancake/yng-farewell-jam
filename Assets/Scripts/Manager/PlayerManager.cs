@@ -5,6 +5,7 @@ public class PlayerManager : MonoBehaviour
 {
     [SerializeField] GameObject playerPrefab;
     public List<Transform> startingPoints = new List<Transform>();
+    public List<HealthManager> healthManagers = new List<HealthManager>();
     private PlayerInputManager playerInputManager;
 
     void Awake()
@@ -16,7 +17,8 @@ public class PlayerManager : MonoBehaviour
     {
         for (int i = 0; i < playerInputManager.maxPlayerCount; i++)
         {
-            PlayerInput.Instantiate(playerPrefab, i, controlScheme: $"Keyboard {i + 1}", pairWithDevice: Keyboard.current);
+           var player = PlayerInput.Instantiate(playerPrefab, i, controlScheme: $"Keyboard {i + 1}", pairWithDevice: Keyboard.current);
+           player.GetComponent<PlayerController>().healthManager = healthManagers[player.playerIndex];
         }
     }
 

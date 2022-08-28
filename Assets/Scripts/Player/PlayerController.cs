@@ -14,11 +14,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool _isGrounded;
     private float _timeOffGround;
 
-    [Header("Attack")] 
+    [Header("Attack")]
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float attackRange = 1f;
     [SerializeField] private float attackForce = 125f;
-
+    public  HealthManager healthManager;
+    private int _health = 3;
     public static event Action OnPlayerFall;
 
     Rigidbody _rb;
@@ -44,10 +45,18 @@ public class PlayerController : MonoBehaviour
     {
         _playerControls.Enable();
     }
+
     private void OnDisable()
     {
         _playerControls.Disable();
     }
+    
+    private void ReduceHealth()
+    {
+        _health--;
+        healthManager.SetHealth(_health);
+    }
+    
     void Update()
     {
         if (_movement.sqrMagnitude != 0f)
@@ -65,8 +74,18 @@ public class PlayerController : MonoBehaviour
         if (_timeOffGround > offGroundTime)
         {
             _timeOffGround = 0;
-            _playerManager.SpawnPlayer(_playerInput);
+
             PlayerFell();
+            ReduceHealth();
+
+            if (_health != 0)
+            {
+                _playerManager.SpawnPlayer(_playerInput);
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         _animator.SetBool("isMoving", _movement != Vector3.zero);
@@ -117,9 +136,11 @@ public class PlayerController : MonoBehaviour
         _rb.AddForce(direction.normalized * force, ForceMode.Impulse);
     }
     
-    private static void PlayerFell()
+    private void PlayerFell()
     {
-        OnPlayerFall?.Invoke();
+        if(_health > 0){
+            OnPlayerFall?.Invoke();
+        }
     }
 
     private void OnDrawGizmos()
